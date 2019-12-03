@@ -18,12 +18,19 @@ public class Plotter extends JPanel {
         setBorder(BorderFactory.createLineBorder(Color.black));      
     }
     
+    public void clearDataPoints() {
+    	for (int i = 0; i < this.data.length; i++) {
+    		this.data[i] = 0;
+    	}
+    }
+    
     public void addDataPoint(int newDataPoint) {
     	// shift points to right
     	for (int i = (data.length-2); i >= 0; i--) {
     		this.data[i+1] = this.data[i];
     	}
     	this.data[0] = newDataPoint;
+    	this.repaint();
     }
     
     public Dimension getPreferredSize() {

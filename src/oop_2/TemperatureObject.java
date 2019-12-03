@@ -42,4 +42,9 @@ public class TemperatureObject implements Serializable {
 	public void setSampleNumber(int sampleNumber) {
 		this.sampleNumber = sampleNumber;
 	}
+	
+	@Override
+	public String toString() {
+		return Integer.toString(this.temperature);
+	}
 }
