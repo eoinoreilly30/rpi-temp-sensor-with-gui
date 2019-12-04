@@ -2,15 +2,24 @@ package oop_2;
 
 import java.net.*;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JSeparator;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 
-import java.awt.FlowLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 @SuppressWarnings("serial")
 public class Client extends JFrame implements ActionListener, Runnable {
@@ -22,8 +31,8 @@ public class Client extends JFrame implements ActionListener, Runnable {
     
     private Plotter dataPlotter;
     private JButton start, stop;
-    private JTextField serverIPInput;
-	private JTextField sampleRateInput;
+    private JTextField serverIPInput, sampleRateInput;
+    private JLabel serverInfo;
 	
 	private boolean running;
     
@@ -38,20 +47,62 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	this.sampleRateInput = new JTextField(10);
     	this.start = new JButton("Start");
     	this.stop = new JButton("Stop");
+    	this.serverInfo = new JLabel("Server Info: ");
     	
     	this.start.addActionListener(this);
         this.stop.addActionListener(this);
     	
-    	frame.getContentPane().setLayout(new FlowLayout());
+    	frame.getContentPane().setLayout(new GridBagLayout());
+    	GridBagConstraints c = new GridBagConstraints();
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	
-    	frame.add(dataPlotter);
-    	frame.add(new JLabel("Enter server IP:"));
-    	frame.add(serverIPInput);
-    	frame.add(new JLabel("Enter sample rate (ms):"));
-    	frame.add(sampleRateInput);
-    	frame.add(start);
-    	frame.add(stop);
+    	c.fill = GridBagConstraints.HORIZONTAL;
+    	c.gridx = 0;
+    	c.gridy = 0;
+    	c.gridwidth = 2;
+    	frame.add(this.dataPlotter, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 1;
+    	c.gridwidth = 2;
+    	c.insets = new Insets(10, 0, 10, 0);
+    	frame.add(new JSeparator(), c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 2;
+    	c.gridwidth = 2;
+    	frame.add(this.serverInfo, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 3;
+    	c.gridwidth = 2;
+    	frame.add(new JSeparator(), c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 4;
+    	c.gridwidth = 1;
+    	frame.add(new JLabel("Enter server IP:"), c);
+    	
+    	c.gridx = 1;
+    	c.gridy = 4;
+    	frame.add(this.serverIPInput, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 5;
+    	frame.add(new JLabel("Enter sample rate (ms): "), c);
+    	
+    	c.gridx = 1;
+    	c.gridy = 5;
+    	frame.add(this.sampleRateInput, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 6;
+    	c.gridwidth = 2;
+    	frame.add(this.start, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 7;
+    	frame.add(this.stop, c);
     	
     	frame.pack();
     	frame.setVisible(true);
@@ -98,9 +149,11 @@ public class Client extends JFrame implements ActionListener, Runnable {
     }
     
     private TemperatureObject requestTemperature() {
-    	TemperatureObject o = new TemperatureObject();
-    	send(o);
-    	return (TemperatureObject) receive();
+    	TemperatureObject temperatureObject = new TemperatureObject();
+    	send(temperatureObject);
+    	temperatureObject = (TemperatureObject) receive();
+    	System.out.println("Received: " + temperatureObject);
+    	return temperatureObject;
     }
     
     @Override
@@ -111,9 +164,8 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	this.dataPlotter.clearDataPoints();
     	
     	while(this.running) {
-    		TemperatureObject temp = requestTemperature();
-    		System.out.println(temp);
-    		this.dataPlotter.addDataPoint(temp.getTemperature());
+    		TemperatureObject temperatureObject = requestTemperature();
+    		this.dataPlotter.addDataPoint(temperatureObject.getTemperature());
     		try {
 				Thread.sleep(sampleRate);
 			} catch (InterruptedException e) {

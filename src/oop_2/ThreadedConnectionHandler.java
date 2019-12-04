@@ -1,6 +1,8 @@
 package oop_2;
 
 import java.net.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.io.*;
 
@@ -18,23 +20,37 @@ public class ThreadedConnectionHandler extends Thread {
          try {
             this.inputStream = new ObjectInputStream(clientSocket.getInputStream());
             this.outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            
+            int sampleNumber = 1;
+            while (receiveObject(sampleNumber)) {sampleNumber++;}
          } 
          catch (IOException e) {
         	System.out.println("There was a problem with the Input/Output Communication:");
             e.printStackTrace();
+            closeSocket();
          }
-         
-         while (receiveObject()) {}
     }
 
-    private boolean receiveObject() {
-        TemperatureObject temp = null;
+    private boolean receiveObject(int sampleNumber) {
+        TemperatureObject temperatureObject = null;
         
         try {
-        	temp = (TemperatureObject) inputStream.readObject();
+        	temperatureObject = (TemperatureObject) inputStream.readObject();
+        	
         	Random r = new Random();
-        	temp.setTemperature(r.nextInt((90-30) + 1) + 30);
-        	send(temp);
+        	temperatureObject.setTemperature(r.nextInt((90-30) + 1) + 30);
+        	
+        	temperatureObject.setNumActiveClients(Thread.activeCount() - 1);
+        	
+        	DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+        	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
+        	temperatureObject.setDateTime(formattedDateTime);
+        	
+        	temperatureObject.setServerName(InetAddress.getLocalHost().getHostName());
+        	
+        	temperatureObject.setSampleNumber(sampleNumber);
+        	
+        	send(temperatureObject);
         } 
         catch (Exception e) {
         	this.closeSocket();
@@ -48,7 +64,7 @@ public class ThreadedConnectionHandler extends Thread {
 
     private void send(Object o) {
         try {
-            System.out.println("Sending (" + o +") to the client.");
+            System.out.println("Sending: " + o);
             this.outputStream.writeObject(o);
             this.outputStream.flush();
         } 

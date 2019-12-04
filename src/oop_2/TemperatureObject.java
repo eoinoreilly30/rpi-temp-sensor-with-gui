@@ -10,6 +10,7 @@ public class TemperatureObject implements Serializable {
 	private String serverName;
 	private String dateTime;
 	private int sampleNumber;
+	private int numActiveClients;
 
 	public int getTemperature() {
 		return temperature;
@@ -43,8 +44,20 @@ public class TemperatureObject implements Serializable {
 		this.sampleNumber = sampleNumber;
 	}
 	
+	public int getNumActiveClients() {
+		return numActiveClients;
+	}
+
+	public void setNumActiveClients(int numActiveClients) {
+		this.numActiveClients = numActiveClients;
+	}
+	
 	@Override
 	public String toString() {
-		return Integer.toString(this.temperature);
+		return "\nSample Number: " + this.sampleNumber +
+				"\nTemperature: " + Integer.toString(this.temperature) +
+				"\nTime Stamp: " + this.dateTime + 
+				"\nActive Clients: " + this.numActiveClients +
+				"\nServer Name: " + this.serverName;
 	}
 }
