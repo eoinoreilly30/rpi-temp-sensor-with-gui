@@ -4,9 +4,10 @@ import java.net.*;
 import java.io.*;
 
 public class ThreadedServer {
-	private static int portNumber = 5000;
+	private static int portNumber;
+	public static String serverName;
 	
-	public static void main(String args[]) {
+	public ThreadedServer() {
 		boolean listening = true;
         ServerSocket serverSocket = null;
         
@@ -44,5 +45,18 @@ public class ThreadedServer {
         catch (IOException e) {
             System.err.println("Could not close server socket: " + e.getMessage());
         }
+	}
+	
+	public static void main(String args[]) {
+		try {
+			ThreadedServer.serverName = args[0];
+			ThreadedServer.portNumber = Integer.parseInt(args[1]);
+		}
+		catch (Exception e) {
+			System.out.println("ERROR: Usage is: ThreadedServer [server name] [port number]");
+			System.exit(1);
+		}
+		
+		new ThreadedServer();
     }
 }

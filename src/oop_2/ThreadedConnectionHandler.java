@@ -56,7 +56,7 @@ public class ThreadedConnectionHandler extends Thread {
         	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
         	dataObject.setDateTime(formattedDateTime);
         	
-        	dataObject.setServerName(InetAddress.getLocalHost().getHostName());
+        	dataObject.setServerName(ThreadedServer.serverName);
         	
         	dataObject.setSampleNumber(sampleNumber);
         	
