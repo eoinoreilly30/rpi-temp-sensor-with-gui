@@ -32,7 +32,7 @@ public class Client extends JFrame implements ActionListener, Runnable {
     private Plotter dataPlotter;
     private JButton start, stop;
     private JTextField serverIPInput, sampleRateInput;
-    private JLabel serverInfo;
+    private JTextArea serverInfo;
 	
 	private boolean running;
     
@@ -43,11 +43,12 @@ public class Client extends JFrame implements ActionListener, Runnable {
     private void createGUI() {
     	JFrame frame = new JFrame("RPi Client");
     	this.dataPlotter = new Plotter();
-    	this.serverIPInput = new JTextField(10);
-    	this.sampleRateInput = new JTextField(10);
+    	this.serverIPInput = new JTextField("localhost", 10);
+    	this.sampleRateInput = new JTextField("3000", 10);
     	this.start = new JButton("Start");
     	this.stop = new JButton("Stop");
-    	this.serverInfo = new JLabel("Server Info: ");
+    	this.serverInfo = new JTextArea("Connect to a server to view info...", 5, 0);
+    	this.serverInfo.setEditable(false);
     	
     	this.start.addActionListener(this);
         this.stop.addActionListener(this);
@@ -64,44 +65,43 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	
     	c.gridx = 0;
     	c.gridy = 1;
-    	c.gridwidth = 2;
-    	c.insets = new Insets(10, 0, 10, 0);
-    	frame.add(new JSeparator(), c);
+    	c.gridwidth = 1;
+    	c.insets = new Insets(5, 5, 5, 5);
+    	frame.add(new JLabel("Server Info: "), c);
+    	
+    	c.gridx = 1;
+    	c.gridy = 1;
+    	frame.add(this.serverInfo, c);
     	
     	c.gridx = 0;
     	c.gridy = 2;
     	c.gridwidth = 2;
-    	frame.add(this.serverInfo, c);
-    	
-    	c.gridx = 0;
-    	c.gridy = 3;
-    	c.gridwidth = 2;
     	frame.add(new JSeparator(), c);
     	
     	c.gridx = 0;
-    	c.gridy = 4;
+    	c.gridy = 3;
     	c.gridwidth = 1;
     	frame.add(new JLabel("Enter server IP:"), c);
     	
     	c.gridx = 1;
-    	c.gridy = 4;
+    	c.gridy = 3;
     	frame.add(this.serverIPInput, c);
     	
     	c.gridx = 0;
-    	c.gridy = 5;
+    	c.gridy = 4;
     	frame.add(new JLabel("Enter sample rate (ms): "), c);
     	
     	c.gridx = 1;
-    	c.gridy = 5;
+    	c.gridy = 4;
     	frame.add(this.sampleRateInput, c);
     	
     	c.gridx = 0;
-    	c.gridy = 6;
+    	c.gridy = 5;
     	c.gridwidth = 2;
     	frame.add(this.start, c);
     	
     	c.gridx = 0;
-    	c.gridy = 7;
+    	c.gridy = 6;
     	frame.add(this.stop, c);
     	
     	frame.pack();
@@ -166,6 +166,7 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	while(this.running) {
     		TemperatureObject temperatureObject = requestTemperature();
     		this.dataPlotter.addDataPoint(temperatureObject.getTemperature());
+    		this.serverInfo.setText(temperatureObject.toString());
     		try {
 				Thread.sleep(sampleRate);
 			} catch (InterruptedException e) {

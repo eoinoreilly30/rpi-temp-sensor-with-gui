@@ -54,7 +54,7 @@ public class TemperatureObject implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "\nSample Number: " + this.sampleNumber +
+		return "Sample Number: " + this.sampleNumber +
 				"\nTemperature: " + Integer.toString(this.temperature) +
 				"\nTime Stamp: " + this.dateTime + 
 				"\nActive Clients: " + this.numActiveClients +
