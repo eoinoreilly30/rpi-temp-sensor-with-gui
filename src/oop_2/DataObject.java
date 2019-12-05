@@ -2,22 +2,23 @@ package oop_2;
 
 import java.io.Serializable;
 
-public class TemperatureObject implements Serializable {
+public class DataObject implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private int temperature;
+	private int reading;
 	private String serverName;
 	private String dateTime;
 	private int sampleNumber;
 	private int numActiveClients;
+	private boolean monitorCPUTemp;
 
-	public int getTemperature() {
-		return temperature;
+	public int getReading() {
+		return reading;
 	}
 	
-	public void setTemperature(int temperature) {
-		this.temperature = temperature;
+	public void setReading(int reading) {
+		this.reading = reading;
 	}
 	
 	public String getServerName() {
@@ -52,12 +53,20 @@ public class TemperatureObject implements Serializable {
 		this.numActiveClients = numActiveClients;
 	}
 	
+	public boolean getMonitorCPUTemp() {
+		return monitorCPUTemp;
+	}
+
+	public void setMonitorCPUTemp(boolean monitorCPUTemp) {
+		this.monitorCPUTemp = monitorCPUTemp;
+	}
+	
 	@Override
 	public String toString() {
 		return "Sample Number: " + this.sampleNumber +
-				"\nTemperature: " + Integer.toString(this.temperature) +
+				(this.monitorCPUTemp ? "\nCPU Temperature: " : "\nCPU Utilization: ") + this.reading +
 				"\nTime Stamp: " + this.dateTime + 
-				"\nActive Clients: " + this.numActiveClients +
-				"\nServer Name: " + this.serverName;
+				"\nServer Name: " + this.serverName +
+				"\nActive Clients: " + this.numActiveClients;
 	}
 }

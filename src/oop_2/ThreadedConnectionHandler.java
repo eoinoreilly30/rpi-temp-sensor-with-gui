@@ -32,41 +32,48 @@ public class ThreadedConnectionHandler extends Thread {
     }
 
     private boolean receiveObject(int sampleNumber) {
-        TemperatureObject temperatureObject = null;
+        DataObject dataObject = null;
         
         try {
-        	temperatureObject = (TemperatureObject) inputStream.readObject();
+        	dataObject = (DataObject) inputStream.readObject();
         	
         	Random r = new Random();
-        	temperatureObject.setTemperature(r.nextInt((90-30) + 1) + 30);
+        	
+        	if (dataObject.getMonitorCPUTemp()) {
+        		int temperature = r.nextInt((90-60) + 1) + 60;
+        		dataObject.setReading(temperature);
+        	}
+        	else {
+        		int util = r.nextInt((30) + 1);
+        		dataObject.setReading(util);
+        	}
         	
         	int numActiveClients = Thread.activeCount() - 1;
-        	temperatureObject.setNumActiveClients(numActiveClients);
+        	dataObject.setNumActiveClients(numActiveClients);
         	System.out.println("\nActive clients: " + numActiveClients);        	
         	
         	DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
         	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
-        	temperatureObject.setDateTime(formattedDateTime);
+        	dataObject.setDateTime(formattedDateTime);
         	
-        	temperatureObject.setServerName(InetAddress.getLocalHost().getHostName());
+        	dataObject.setServerName(InetAddress.getLocalHost().getHostName());
         	
-        	temperatureObject.setSampleNumber(sampleNumber);
+        	dataObject.setSampleNumber(sampleNumber);
         	
-        	send(temperatureObject);
+        	System.out.println(dataObject.getMonitorCPUTemp() ? "CPU Temperature: " : "CPU Utilization: "
+        			+ dataObject.getReading() + " @ " + formattedDateTime);
+        	send(dataObject);
         } 
         catch (Exception e) {
         	this.closeSocket();
             return false;
         }
         
-        System.out.println("Received an object from the client");
-        
         return true;
     }
 
     private void send(Object o) {
         try {
-        	System.out.println("Sending object to client");
             this.outputStream.writeObject(o);
             this.outputStream.flush();
         } 

@@ -3,9 +3,11 @@ package oop_2;
 import java.net.*;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -30,11 +32,14 @@ public class Client extends JFrame implements ActionListener, Runnable {
     private ObjectInputStream inputStream = null;
     
     private Plotter dataPlotter;
+    private MovingAveragePlotter movingAveragePlotter;
     private JButton start, stop;
     private JTextField serverIPInput, sampleRateInput;
     private JTextArea serverInfo;
+    private JRadioButton cpuUtilization, cpuTemperature;
 	
 	private boolean running;
+	private boolean monitorCPUTemp;
     
     public Client() {
     	createGUI();
@@ -43,65 +48,103 @@ public class Client extends JFrame implements ActionListener, Runnable {
     private void createGUI() {
     	JFrame frame = new JFrame("RPi Client");
     	this.dataPlotter = new Plotter();
+    	this.movingAveragePlotter = new MovingAveragePlotter();
     	this.serverIPInput = new JTextField("localhost", 10);
-    	this.sampleRateInput = new JTextField("3000", 10);
+    	this.sampleRateInput = new JTextField("200", 10);
     	this.start = new JButton("Start");
     	this.stop = new JButton("Stop");
     	this.serverInfo = new JTextArea("Connect to a server to view info...", 5, 0);
     	this.serverInfo.setEditable(false);
+    	this.cpuTemperature = new JRadioButton("CPU Temperature", true);
+    	this.cpuUtilization = new JRadioButton("CPU Utilization", false);
+    	ButtonGroup buttonGroup = new ButtonGroup();
+    	buttonGroup.add(this.cpuTemperature);
+    	buttonGroup.add(this.cpuUtilization);
+    	this.monitorCPUTemp = true;
     	
     	this.start.addActionListener(this);
         this.stop.addActionListener(this);
-    	
+        this.cpuTemperature.addActionListener(this);
+        this.cpuUtilization.addActionListener(this);
+        
     	frame.getContentPane().setLayout(new GridBagLayout());
     	GridBagConstraints c = new GridBagConstraints();
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	
+    	c.insets = new Insets(5, 5, 5, 5);
     	c.fill = GridBagConstraints.HORIZONTAL;
+    	
     	c.gridx = 0;
     	c.gridy = 0;
-    	c.gridwidth = 2;
+    	c.gridwidth = 3;
+    	frame.add(new JLabel("Last 20 Readings"), c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 1;
     	frame.add(this.dataPlotter, c);
     	
     	c.gridx = 0;
-    	c.gridy = 1;
-    	c.gridwidth = 1;
-    	c.insets = new Insets(5, 5, 5, 5);
-    	frame.add(new JLabel("Server Info: "), c);
-    	
-    	c.gridx = 1;
-    	c.gridy = 1;
-    	frame.add(this.serverInfo, c);
-    	
-    	c.gridx = 0;
     	c.gridy = 2;
-    	c.gridwidth = 2;
-    	frame.add(new JSeparator(), c);
+    	frame.add(new JLabel("Moving Average"), c);
     	
     	c.gridx = 0;
     	c.gridy = 3;
+    	frame.add(this.movingAveragePlotter, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 4;
+    	c.gridwidth = 1;
+    	frame.add(new JLabel("Server Info: "), c);
+    	
+    	c.gridx = 1;
+    	c.gridy = 4;
+    	c.gridwidth = 2;
+    	frame.add(this.serverInfo, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 5;
+    	c.gridwidth = 3;
+    	frame.add(new JSeparator(), c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 6;
     	c.gridwidth = 1;
     	frame.add(new JLabel("Enter server IP:"), c);
     	
     	c.gridx = 1;
-    	c.gridy = 3;
+    	c.gridy = 6;
+    	c.gridwidth = 2;
     	frame.add(this.serverIPInput, c);
     	
     	c.gridx = 0;
-    	c.gridy = 4;
+    	c.gridy = 7;
+    	c.gridwidth = 1;
+    	frame.add(new JLabel("Stat to Monitor: "), c);
+    	
+    	c.gridx = 1;
+    	c.gridy = 7;
+    	frame.add(this.cpuTemperature, c);
+    	
+    	c.gridx = 2;
+    	c.gridy = 7;
+    	frame.add(this.cpuUtilization, c);
+    	
+    	c.gridx = 0;
+    	c.gridy = 8;
     	frame.add(new JLabel("Enter sample rate (ms): "), c);
     	
     	c.gridx = 1;
-    	c.gridy = 4;
+    	c.gridy = 8;
+    	c.gridwidth = 2;
     	frame.add(this.sampleRateInput, c);
     	
     	c.gridx = 0;
-    	c.gridy = 5;
-    	c.gridwidth = 2;
+    	c.gridy = 9;
+    	c.gridwidth = 3;
     	frame.add(this.start, c);
     	
     	c.gridx = 0;
-    	c.gridy = 6;
+    	c.gridy = 10;
     	frame.add(this.stop, c);
     	
     	frame.pack();
@@ -148,12 +191,13 @@ public class Client extends JFrame implements ActionListener, Runnable {
 		return o;
     }
     
-    private TemperatureObject requestTemperature() {
-    	TemperatureObject temperatureObject = new TemperatureObject();
-    	send(temperatureObject);
-    	temperatureObject = (TemperatureObject) receive();
-    	System.out.println("Received: " + temperatureObject);
-    	return temperatureObject;
+    private DataObject requestReading() {
+    	DataObject dataObject = new DataObject();
+    	dataObject.setMonitorCPUTemp(this.monitorCPUTemp);
+    	send(dataObject);
+    	dataObject = (DataObject) receive();
+    	System.out.println("Received: " + dataObject);
+    	return dataObject;
     }
     
     @Override
@@ -162,11 +206,13 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	
     	int sampleRate = Integer.parseInt(this.sampleRateInput.getText());
     	this.dataPlotter.clearDataPoints();
+    	this.movingAveragePlotter.clearDataPoints();
     	
     	while(this.running) {
-    		TemperatureObject temperatureObject = requestTemperature();
-    		this.dataPlotter.addDataPoint(temperatureObject.getTemperature());
-    		this.serverInfo.setText(temperatureObject.toString());
+    		DataObject dataObject = requestReading();
+    		this.dataPlotter.addDataPoint(dataObject.getReading());
+    		this.movingAveragePlotter.addDataPoint(dataObject.getReading());
+    		this.serverInfo.setText(dataObject.toString());
     		try {
 				Thread.sleep(sampleRate);
 			} catch (InterruptedException e) {
@@ -200,6 +246,16 @@ public class Client extends JFrame implements ActionListener, Runnable {
 			catch (NullPointerException exc) {
 				System.err.println("No socket to close");
 			}
+		}
+		else if (e.getActionCommand().equals("CPU Temperature")) {
+			this.monitorCPUTemp = true;
+			this.dataPlotter.clearDataPoints();
+	    	this.movingAveragePlotter.clearDataPoints();
+		}
+		else if (e.getActionCommand().equals("CPU Utilization")) {
+			this.monitorCPUTemp = false;
+			this.dataPlotter.clearDataPoints();
+	    	this.movingAveragePlotter.clearDataPoints();
 		}
 	}
 

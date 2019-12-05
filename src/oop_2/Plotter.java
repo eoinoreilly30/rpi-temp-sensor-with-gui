@@ -11,7 +11,7 @@ import java.util.Random;
 @SuppressWarnings("serial")
 public class Plotter extends JPanel {
 	
-	private int data[];
+	protected int data[];
 	
     public Plotter() {
     	this.data = new int[20];
@@ -19,17 +19,17 @@ public class Plotter extends JPanel {
     }
     
     public void clearDataPoints() {
-    	for (int i = 0; i < this.data.length; i++) {
-    		this.data[i] = 0;
+    	for (int i = 0; i < data.length; i++) {
+    		data[i] = 0;
     	}
     }
     
     public void addDataPoint(int newDataPoint) {
     	// shift points to right
     	for (int i = (data.length-2); i >= 0; i--) {
-    		this.data[i+1] = this.data[i];
+    		data[i+1] = data[i];
     	}
-    	this.data[0] = newDataPoint;
+    	data[0] = newDataPoint;
     	this.repaint();
     }
     
@@ -44,31 +44,46 @@ public class Plotter extends JPanel {
         int width = getWidth();
         int height = getHeight();
         int x_offset = (int) (width*(10.0f/100));
-        int y_offset = (int) (height*(80.0f/100));
+        int y_offset = (int) (height*(90.0f/100));
         
         // draw axes
         g.setColor(Color.gray);
         g.drawLine(x_offset, 0, x_offset, height);
         g.drawLine(0, y_offset, width, y_offset);
         
-        int yStepSize = (int) (y_offset/10.0f);
-        
         // draw y axis labels
+        int yStepSize = (int) (y_offset/10.0f);
         g.setColor(Color.black);
         for (int i = 0; i < 10; i++) {
         	g.drawString(Integer.toString(i*10), x_offset-20, y_offset-(yStepSize*i));
         }
         
+        // draw x axis labels
         int xStepSize = (int) ((width-x_offset)/20.0f);
+        for (int i = 0; i < 20; i++) {
+        	g.drawString(Integer.toString(i), x_offset+(xStepSize*i), y_offset+12);
+        }
+        
+        // draw max and min lines
+//        int max = Arrays.stream(data).max().getAsInt();
+//    	int min = Arrays.stream(data).min().getAsInt();
+//    	// scale data points
+//    	max = (int) ((max/100.0f)*y_offset);
+//    	min = (int) ((min/100.0f)*y_offset);
+//    	g.setColor(Color.blue);
+//    	g.drawString("MAX", 3, y_offset-max);
+//    	g.drawString("MIN", 3, y_offset-min);
+//    	g.drawLine(0, y_offset-max, width, y_offset-max);
+//    	g.drawLine(0, y_offset-min, width, y_offset-min);
         
         // draw data points
         g.setColor(Color.green);
-        for (int i = 0; i < this.data.length-1; i++) {
-        	// scale data points
-        	int point1 = (int) ((this.data[i]/100.0f)*y_offset);
-        	int point2 = (int) ((this.data[i+1]/100.0f)*y_offset);        	
-
-        	g.drawLine(x_offset+xStepSize*i, y_offset-point1, x_offset+xStepSize*(i+1), y_offset-point2);
+        for (int i = 0; i < data.length-1; i++) {
+        	if (data[i] != 0) {
+	        	int point1 = (int) ((data[i]/100.0f)*y_offset);
+	        	int point2 = (int) ((data[i+1]/100.0f)*y_offset);        	
+	        	g.drawLine(x_offset+xStepSize*i, y_offset-point1, x_offset+xStepSize*(i+1), y_offset-point2);
+        	}
         }
         
     }
@@ -88,7 +103,7 @@ public class Plotter extends JPanel {
         	dataPlotter.addDataPoint(r.nextInt((90-30) + 1) + 30);
         	dataPlotter.repaint();
         	try {
-				Thread.sleep(2000);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
