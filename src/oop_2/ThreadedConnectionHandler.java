@@ -3,7 +3,6 @@ package oop_2;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Random;
 import java.io.*;
 
 public class ThreadedConnectionHandler extends Thread {
@@ -40,14 +39,58 @@ public class ThreadedConnectionHandler extends Thread {
 			bw.close();
 			bw = new BufferedWriter(new FileWriter(path + "/brightness"));
 			bw.write("1");
+			bw.flush();
 			Thread.sleep(200);
 			bw.write("0");
+			bw.flush();
 			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+    }
+    
+    private int readTemperature() {
+    	String path = "/sys/class/thermal/thermal_zone0/temp";
+    	int temperature = 0;
+    	
+    	try {
+			BufferedReader br = new BufferedReader(new FileReader(path));
+			String temperatureString = br.readLine();
+			temperature = Integer.parseInt(temperatureString)/1000;
+			System.out.println(temperature);
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    	return temperature;
+    }
+    
+    private int readUtilization() {
+    	String path = "/proc/stat";
+    	int utilization = 0;
+    	
+    	try {
+			BufferedReader br = new BufferedReader(new FileReader(path));
+			String[] utilizationArray = br.readLine().split(" ");
+			
+			int sum = 0;
+			for (int i = 1; i < utilizationArray.length; i++) {
+				sum += Integer.parseInt(utilizationArray[i]);
+			}
+			
+			int totalIdleTime = sum/Integer.parseInt(utilizationArray[4]);
+			
+			utilization = (1 - totalIdleTime)*100;
+			System.out.println(utilization);
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    	return utilization;
     }
 
     private boolean receiveObject(int sampleNumber) {
@@ -56,15 +99,11 @@ public class ThreadedConnectionHandler extends Thread {
         try {
         	dataObject = (DataObject) inputStream.readObject();
 
-        	Random r = new Random();
-
         	if (dataObject.getMonitorCPUTemp()) {
-        		int temperature = r.nextInt((90-60) + 1) + 60;
-        		dataObject.setReading(temperature);
+        		dataObject.setReading(readTemperature());
         	}
         	else {
-        		int util = r.nextInt((30) + 1);
-        		dataObject.setReading(util);
+        		dataObject.setReading(readUtilization());
         	}
 
         	int numActiveClients = Thread.activeCount() - 1;
