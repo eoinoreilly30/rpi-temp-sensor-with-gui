@@ -75,16 +75,12 @@ public class ThreadedConnectionHandler extends Thread {
     	try {
 			BufferedReader br = new BufferedReader(new FileReader(path));
 			String[] utilizationArray = br.readLine().split(" ");
-			
 			int sum = 0;
-			for (int i = 1; i < utilizationArray.length; i++) {
+			for (int i = 2; i < utilizationArray.length; i++) {
 				sum += Integer.parseInt(utilizationArray[i]);
 			}
-			
-			int totalIdleTime = sum/Integer.parseInt(utilizationArray[4]);
-			
+			int totalIdleTime = Integer.parseInt(utilizationArray[5])/sum;
 			utilization = (1 - totalIdleTime)*100;
-			System.out.println(utilization);
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -134,7 +130,7 @@ public class ThreadedConnectionHandler extends Thread {
         try {
             this.outputStream.writeObject(o);
             this.outputStream.flush();
-	    // flashLED();
+	    flashLED();
         }
         catch (Exception e) {
         	e.printStackTrace();
