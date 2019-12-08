@@ -32,15 +32,22 @@ public class ThreadedConnectionHandler extends Thread {
     }
 
     private void flashLED() {
-	String path = "/sys/class/leds/led0";
-	BufferedWriter bw = new BufferedWriter(new FileWriter(path + "/trigger"));
-	bw.write("none");
-	bw.close();
-	bw = new BufferedWriter (new FileWriter(path + "/brightness"));
-	bw.write("1");
-	Thread.sleep(200);
-	bw.write("0");
-	bw.close();
+		String path = "/sys/class/leds/led0";
+		
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "/trigger"));
+			bw.write("none");
+			bw.close();
+			bw = new BufferedWriter (new FileWriter(path + "/brightness"));
+			bw.write("1");
+			Thread.sleep(200);
+			bw.write("0");
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
 
     private boolean receiveObject(int sampleNumber) {
