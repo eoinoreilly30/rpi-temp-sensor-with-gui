@@ -33,12 +33,12 @@ public class ThreadedConnectionHandler extends Thread {
 
     private void flashLED() {
 		String path = "/sys/class/leds/led0";
-		
+
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "/trigger"));
 			bw.write("none");
 			bw.close();
-			bw = new BufferedWriter (new FileWriter(path + "/brightness"));
+			bw = new BufferedWriter(new FileWriter(path + "/brightness"));
 			bw.write("1");
 			Thread.sleep(200);
 			bw.write("0");
@@ -95,7 +95,7 @@ public class ThreadedConnectionHandler extends Thread {
         try {
             this.outputStream.writeObject(o);
             this.outputStream.flush();
-	    flashLED();
+	    // flashLED();
         }
         catch (Exception e) {
         	e.printStackTrace();
