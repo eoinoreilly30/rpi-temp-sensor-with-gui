@@ -59,7 +59,6 @@ public class ThreadedConnectionHandler extends Thread {
 			BufferedReader br = new BufferedReader(new FileReader(path));
 			String temperatureString = br.readLine();
 			temperature = Integer.parseInt(temperatureString)/1000;
-			System.out.println(temperature);
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -95,16 +94,8 @@ public class ThreadedConnectionHandler extends Thread {
         try {
         	dataObject = (DataObject) inputStream.readObject();
 
-        	if (dataObject.getMonitorCPUTemp()) {
-        		dataObject.setReading(readTemperature());
-        	}
-        	else {
-        		dataObject.setReading(readUtilization());
-        	}
-
         	int numActiveClients = Thread.activeCount() - 1;
         	dataObject.setNumActiveClients(numActiveClients);
-        	System.out.println("\nActive clients: " + numActiveClients);
 
         	DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
         	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
@@ -113,9 +104,18 @@ public class ThreadedConnectionHandler extends Thread {
         	dataObject.setServerName(ThreadedServer.serverName);
 
         	dataObject.setSampleNumber(sampleNumber);
+        	
+        	if (dataObject.getMonitorCPUTemp()) {
+        		int reading = readTemperature();
+        		System.out.println("CPU Temperature: " + reading + " @ " + formattedDateTime);
+        		dataObject.setReading(reading);
+        	}
+        	else {
+        		int reading = readUtilization();
+        		System.out.println("CPU Temperature: " + reading + " @ " + formattedDateTime);
+        		dataObject.setReading(reading);
+        	}
 
-        	System.out.println(dataObject.getMonitorCPUTemp() ? "CPU Temperature: " : "CPU Utilization: "
-        			+ dataObject.getReading() + " @ " + formattedDateTime);
         	send(dataObject);
         }
         catch (Exception e) {
