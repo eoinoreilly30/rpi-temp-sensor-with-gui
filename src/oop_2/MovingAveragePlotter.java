@@ -20,6 +20,9 @@ public class MovingAveragePlotter extends Plotter {
 		int nextAverage = (int) (previousAverage+(1/20.0f)*(newDataPoint-data[data.length-1]));		
 		previousAverage = nextAverage;
 		
+		if (nextAverage > super.max) super.max = nextAverage;
+    	if (nextAverage < super.min) super.min = nextAverage;
+		
     	// shift points to right
     	for (int i = (data.length-2); i >= 0; i--) {
     		data[i+1] = data[i];

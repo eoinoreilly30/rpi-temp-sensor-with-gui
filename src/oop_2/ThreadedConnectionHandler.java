@@ -9,9 +9,11 @@ public class ThreadedConnectionHandler extends Thread {
     private Socket clientSocket = null;
     private ObjectInputStream inputStream = null;
     private ObjectOutputStream outputStream = null;
+    private String serverName;
 
-    public ThreadedConnectionHandler(Socket clientSocket) {
+    public ThreadedConnectionHandler(Socket clientSocket, String serverName) {
         this.clientSocket = clientSocket;
+        this.serverName = serverName;
     }
 
     @Override
@@ -94,14 +96,13 @@ public class ThreadedConnectionHandler extends Thread {
         try {
         	dataObject = (DataObject) inputStream.readObject();
 
-        	int numActiveClients = Thread.activeCount() - 1;
-        	dataObject.setNumActiveClients(numActiveClients);
+        	dataObject.setNumActiveClients(Thread.activeCount() - 1);
 
         	DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
         	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
         	dataObject.setDateTime(formattedDateTime);
 
-        	dataObject.setServerName(ThreadedServer.serverName);
+        	dataObject.setServerName(this.serverName);
 
         	dataObject.setSampleNumber(sampleNumber);
         	
@@ -130,7 +131,7 @@ public class ThreadedConnectionHandler extends Thread {
         try {
             this.outputStream.writeObject(o);
             this.outputStream.flush();
-	    flashLED();
+            this.flashLED();
         }
         catch (Exception e) {
         	e.printStackTrace();

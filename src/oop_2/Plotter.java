@@ -6,13 +6,14 @@ import javax.swing.BorderFactory;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.Arrays;
 import java.util.Random;
 
 @SuppressWarnings("serial")
 public class Plotter extends JPanel {
 	
 	protected int data[];
+	protected int max = Integer.MIN_VALUE;
+	protected int min = Integer.MAX_VALUE;
 	
     public Plotter() {
     	this.data = new int[20];
@@ -26,6 +27,9 @@ public class Plotter extends JPanel {
     }
     
     public void addDataPoint(int newDataPoint) {
+    	if (newDataPoint > this.max) this.max = newDataPoint;
+    	if (newDataPoint < this.min) this.min = newDataPoint;
+    	
     	// shift points to right
     	for (int i = (data.length-2); i >= 0; i--) {
     		data[i+1] = data[i];
@@ -66,16 +70,13 @@ public class Plotter extends JPanel {
         }
         
         // draw max and min lines
-        int max = Arrays.stream(data).max().getAsInt();
-    	int min = Arrays.stream(data).min().getAsInt();
-    	// scale data points
-    	max = (int) ((max/100.0f)*y_offset);
-    	min = (int) ((min/100.0f)*y_offset);
+    	int scaledMax = (int) ((this.max/100.0f)*y_offset);
+    	int scaledMin = (int) ((this.min/100.0f)*y_offset);
     	g.setColor(Color.blue);
-    	g.drawString("MAX", 3, y_offset-max);
-    	g.drawString("MIN", 3, y_offset-min);
-    	g.drawLine(0, y_offset-max, width, y_offset-max);
-    	g.drawLine(0, y_offset-min, width, y_offset-min);
+    	g.drawString("MAX", 3, y_offset-scaledMax);
+    	g.drawString("MIN", 3, y_offset-scaledMin);
+    	g.drawLine(0, y_offset-scaledMax, width, y_offset-scaledMax);
+    	g.drawLine(0, y_offset-scaledMin, width, y_offset-scaledMin);
         
         // draw data points
         g.setColor(Color.green);

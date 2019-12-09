@@ -4,10 +4,8 @@ import java.net.*;
 import java.io.*;
 
 public class ThreadedServer {
-	private static int portNumber;
-	public static String serverName;
 	
-	public ThreadedServer() {
+	public ThreadedServer(int portNumber, String serverName) {
 		boolean listening = true;
         ServerSocket serverSocket = null;
         
@@ -33,7 +31,7 @@ public class ThreadedServer {
                 listening = false;
             }	
             
-            ThreadedConnectionHandler clientConnection = new ThreadedConnectionHandler(clientSocket);
+            ThreadedConnectionHandler clientConnection = new ThreadedConnectionHandler(clientSocket, serverName);
             clientConnection.start(); 
             System.out.println("Finished communicating with client: " + clientSocket.getInetAddress().toString());
         }
@@ -48,15 +46,18 @@ public class ThreadedServer {
 	}
 	
 	public static void main(String args[]) {
+		int portNumber = 0;
+		String serverName = null;
+		
 		try {
-			ThreadedServer.serverName = args[0];
-			ThreadedServer.portNumber = Integer.parseInt(args[1]);
+			serverName = args[0];
+			portNumber = Integer.parseInt(args[1]);
 		}
 		catch (Exception e) {
 			System.out.println("ERROR: Usage is: ThreadedServer [server name] [port number]");
 			System.exit(1);
 		}
 		
-		new ThreadedServer();
+		new ThreadedServer(portNumber, serverName);
     }
 }
