@@ -39,6 +39,7 @@ public class Client extends JFrame implements ActionListener, Runnable {
 	private boolean monitorCPUTemp;
 
     public Client() {
+    	// initialize components
     	JFrame frame = new JFrame("RPi Client");
     	this.dataPlotter = new Plotter();
     	this.movingAveragePlotter = new MovingAveragePlotter();
@@ -55,6 +56,7 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	buttonGroup.add(this.cpuUtilization);
     	this.monitorCPUTemp = true;
     	
+    	// add action listeners to buttons
     	this.start.addActionListener(this);
         this.stop.addActionListener(this);
         this.cpuTemperature.addActionListener(this);
@@ -64,6 +66,7 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	GridBagConstraints c = new GridBagConstraints();
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	
+    	// position each component
     	c.insets = new Insets(5, 5, 5, 5);
     	c.fill = GridBagConstraints.HORIZONTAL;
     	

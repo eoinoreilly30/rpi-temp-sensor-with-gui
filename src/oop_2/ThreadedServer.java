@@ -9,6 +9,7 @@ public class ThreadedServer {
 		boolean listening = true;
         ServerSocket serverSocket = null;
         
+        // create server socket
         try {
             serverSocket = new ServerSocket(portNumber);
             System.out.println("Server started on port: " + portNumber );
@@ -18,11 +19,13 @@ public class ThreadedServer {
             System.exit(1);
         }
         
+        // begin listening for clients
         while (listening) {
             Socket clientSocket = null;
             try {
             	System.out.println("Listening for a connection...");
             	
+            	// program blocks here until client connects
                 clientSocket = serverSocket.accept();
                 
                 System.out.println("Accepted socket connection from "
@@ -34,6 +37,7 @@ public class ThreadedServer {
                 listening = false;
             }	
             
+            // client connected, begin threaded handler
             ThreadedConnectionHandler clientConnection = 
             		new ThreadedConnectionHandler(clientSocket, serverName);
             clientConnection.start();
@@ -55,6 +59,7 @@ public class ThreadedServer {
 		int portNumber = 0;
 		String serverName = null;
 		
+		// parse command line args
 		try {
 			serverName = args[0];
 			portNumber = Integer.parseInt(args[1]);
@@ -64,6 +69,7 @@ public class ThreadedServer {
 			System.exit(1);
 		}
 		
+		// run server
 		new ThreadedServer(portNumber, serverName);
     }
 }

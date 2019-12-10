@@ -19,9 +19,11 @@ public class ThreadedConnectionHandler extends Thread {
     @Override
     public void run() {
          try {
+        	 // set up client I/O
             this.inputStream = new ObjectInputStream(clientSocket.getInputStream());
             this.outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-
+            
+            // begin receiving requests
             int sampleNumber = 1;
             while (receiveObject(sampleNumber)) {sampleNumber++;}
          }
@@ -34,7 +36,8 @@ public class ThreadedConnectionHandler extends Thread {
 
     private void flashLED() {
 		String path = "/sys/class/leds/led0";
-
+		
+		// flash led for 200 millseconds
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "/trigger"));
 			bw.write("none");
@@ -57,6 +60,7 @@ public class ThreadedConnectionHandler extends Thread {
     	String path = "/sys/class/thermal/thermal_zone0/temp";
     	int temperature = 0;
     	
+    	// read temperature and divide by 1000 to get result in degrees celsius
     	try {
 			BufferedReader br = new BufferedReader(new FileReader(path));
 			String temperatureString = br.readLine();
@@ -75,12 +79,19 @@ public class ThreadedConnectionHandler extends Thread {
     	
     	try {
 			BufferedReader br = new BufferedReader(new FileReader(path));
+			// read first line delimited by spaces
 			String[] utilizationArray = br.readLine().split(" ");
+			
+			// sum up values
 			int sum = 0;
 			for (int i = 2; i < utilizationArray.length; i++) {
 				sum += Integer.parseInt(utilizationArray[i]);
 			}
+			
+			// divide idle time by total time, to get fraction of time spent idle
 			int totalIdleTime = Integer.parseInt(utilizationArray[5])/sum;
+			
+			// get time spent not idle as percentage
 			utilization = (1 - totalIdleTime)*100;
 			br.close();
 		} catch (IOException e) {
@@ -91,8 +102,10 @@ public class ThreadedConnectionHandler extends Thread {
     }
     
     private DataObject populateDataObject(DataObject dataObject, int sampleNumber) {
+    	// number of threads minus 1 equals number of active clients
     	dataObject.setNumActiveClients(Thread.activeCount() - 1);
 
+    	// set timestamp
     	DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
     	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
     	dataObject.setDateTime(formattedDateTime);
