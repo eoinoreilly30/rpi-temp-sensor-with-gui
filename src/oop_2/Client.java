@@ -37,12 +37,8 @@ public class Client extends JFrame implements ActionListener, Runnable {
 	
 	private boolean running;
 	private boolean monitorCPUTemp;
-    
-    public Client() {
-    	createGUI();
-    }
 
-    private void createGUI() {
+    public Client() {
     	JFrame frame = new JFrame("RPi Client");
     	this.dataPlotter = new Plotter();
     	this.movingAveragePlotter = new MovingAveragePlotter();
@@ -223,7 +219,8 @@ public class Client extends JFrame implements ActionListener, Runnable {
     @Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("Start")) {
-			if (this.serverIPInput.getText().length() > 0 && this.sampleRateInput.getText().length() > 0) {
+			if (this.serverIPInput.getText().length() > 0
+					&& this.sampleRateInput.getText().length() > 0) {
 				this.running = true;
 				Thread thread = new Thread(this);
 				thread.start();

@@ -89,40 +89,51 @@ public class ThreadedConnectionHandler extends Thread {
     	
     	return utilization;
     }
+    
+    private DataObject populateDataObject(DataObject dataObject, int sampleNumber) {
+    	dataObject.setNumActiveClients(Thread.activeCount() - 1);
+
+    	DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+    	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
+    	dataObject.setDateTime(formattedDateTime);
+
+    	dataObject.setServerName(this.serverName);
+
+    	dataObject.setSampleNumber(sampleNumber);
+    	
+    	if (dataObject.getMonitorCPUTemp()) {
+    		int reading = readTemperature();
+    		System.out.println("CPU Temperature: " + reading + " @ " + formattedDateTime);
+    		dataObject.setReading(reading);
+    	}
+    	else {
+    		int reading = readUtilization();
+    		System.out.println("CPU Temperature: " + reading + " @ " + formattedDateTime);
+    		dataObject.setReading(reading);
+    	}
+    	
+    	return dataObject;
+    }
 
     private boolean receiveObject(int sampleNumber) {
         DataObject dataObject = null;
 
         try {
         	dataObject = (DataObject) inputStream.readObject();
-
-        	dataObject.setNumActiveClients(Thread.activeCount() - 1);
-
-        	DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
-        	String formattedDateTime = LocalDateTime.now().format(dateTimeFormat);
-        	dataObject.setDateTime(formattedDateTime);
-
-        	dataObject.setServerName(this.serverName);
-
-        	dataObject.setSampleNumber(sampleNumber);
-        	
-        	if (dataObject.getMonitorCPUTemp()) {
-        		int reading = readTemperature();
-        		System.out.println("CPU Temperature: " + reading + " @ " + formattedDateTime);
-        		dataObject.setReading(reading);
-        	}
-        	else {
-        		int reading = readUtilization();
-        		System.out.println("CPU Temperature: " + reading + " @ " + formattedDateTime);
-        		dataObject.setReading(reading);
-        	}
-
-        	send(dataObject);
         }
-        catch (Exception e) {
+        catch (IOException e) {
+        	System.out.println("There was a problem with the Input/Output Communication:");
         	this.closeSocket();
             return false;
         }
+        catch (ClassNotFoundException e) {
+        	System.out.println("The DataObject class could not be found");
+        	this.closeSocket();
+            return false;
+		}
+        
+        dataObject = populateDataObject(dataObject, sampleNumber);
+    	send(dataObject);
 
         return true;
     }

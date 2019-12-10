@@ -82,10 +82,10 @@ public class Plotter extends JPanel {
         g.setColor(Color.green);
         for (int i = 0; i < data.length-1; i++) {
         	int point1 = (int) ((data[i]/100.0f)*y_offset);
-        	int point2 = (int) ((data[i+1]/100.0f)*y_offset);        	
-        	g.drawLine(x_offset+xStepSize*i, y_offset-point1, x_offset+xStepSize*(i+1), y_offset-point2);
+        	int point2 = (int) ((data[i+1]/100.0f)*y_offset);
+        	g.drawLine(x_offset+xStepSize*i, y_offset-point1,
+        			x_offset+xStepSize*(i+1), y_offset-point2);
         }
-        
     }
 
     public static void main(String[] args) {

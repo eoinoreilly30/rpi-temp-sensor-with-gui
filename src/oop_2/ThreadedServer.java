@@ -22,8 +22,11 @@ public class ThreadedServer {
             Socket clientSocket = null;
             try {
             	System.out.println("Listening for a connection...");
+            	
                 clientSocket = serverSocket.accept();
-                System.out.println("Accepted socket connection from " + clientSocket.getInetAddress().toString());
+                
+                System.out.println("Accepted socket connection from "
+                		+ clientSocket.getInetAddress().toString());
                 System.out.println("on port number: " + clientSocket.getPort());
             } 
             catch (IOException e) {
@@ -31,9 +34,12 @@ public class ThreadedServer {
                 listening = false;
             }	
             
-            ThreadedConnectionHandler clientConnection = new ThreadedConnectionHandler(clientSocket, serverName);
-            clientConnection.start(); 
-            System.out.println("Finished communicating with client: " + clientSocket.getInetAddress().toString());
+            ThreadedConnectionHandler clientConnection = 
+            		new ThreadedConnectionHandler(clientSocket, serverName);
+            clientConnection.start();
+            
+            System.out.println("Finished communicating with client: "
+            		+ clientSocket.getInetAddress().toString());
         }
         
         try {
@@ -53,7 +59,7 @@ public class ThreadedServer {
 			serverName = args[0];
 			portNumber = Integer.parseInt(args[1]);
 		}
-		catch (Exception e) {
+		catch (NumberFormatException e) {
 			System.out.println("ERROR: Usage is: ThreadedServer [server name] [port number]");
 			System.exit(1);
 		}
