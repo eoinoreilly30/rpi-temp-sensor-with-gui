@@ -108,7 +108,7 @@ public class ThreadedConnectionHandler extends Thread {
     	}
     	else {
     		int reading = readUtilization();
-    		System.out.println("CPU Temperature: " + reading + " @ " + formattedDateTime);
+    		System.out.println("CPU Utilization: " + reading + " @ " + formattedDateTime);
     		dataObject.setReading(reading);
     	}
     	

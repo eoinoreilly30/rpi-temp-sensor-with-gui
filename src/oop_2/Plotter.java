@@ -24,6 +24,8 @@ public class Plotter extends JPanel {
     	for (int i = 0; i < data.length; i++) {
     		data[i] = 0;
     	}
+    	this.max = Integer.MIN_VALUE;
+    	this.min = Integer.MAX_VALUE;
     }
     
     public void addDataPoint(int newDataPoint) {
@@ -57,9 +59,9 @@ public class Plotter extends JPanel {
         g.drawLine(0, y_offset, width, y_offset);
         
         // draw y axis labels
-        int yStepSize = (int) (y_offset/10.0f);
+        int yStepSize = (int) (y_offset/11.0f);
         g.setColor(Color.black);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
         	g.drawString(Integer.toString(i*10), x_offset-20, y_offset-(yStepSize*i));
         }
         
@@ -69,20 +71,20 @@ public class Plotter extends JPanel {
         	g.drawString(Integer.toString(i), x_offset+(xStepSize*i), y_offset+12);
         }
         
-        // draw max and min lines
-    	int scaledMax = (int) ((this.max/100.0f)*y_offset);
-    	int scaledMin = (int) ((this.min/100.0f)*y_offset);
+        // draw max and min references
+    	int scaledMax = (int) ((this.max/110.0f)*y_offset);
+    	int scaledMin = (int) ((this.min/110.0f)*y_offset);
     	g.setColor(Color.blue);
     	g.drawString("MAX", 3, y_offset-scaledMax);
     	g.drawString("MIN", 3, y_offset-scaledMin);
-    	g.drawLine(0, y_offset-scaledMax, width, y_offset-scaledMax);
-    	g.drawLine(0, y_offset-scaledMin, width, y_offset-scaledMin);
+    	g.drawLine(0, y_offset-scaledMax, x_offset, y_offset-scaledMax);
+    	g.drawLine(0, y_offset-scaledMin, x_offset, y_offset-scaledMin);
         
         // draw data points
         g.setColor(Color.green);
         for (int i = 0; i < data.length-1; i++) {
-        	int point1 = (int) ((data[i]/100.0f)*y_offset);
-        	int point2 = (int) ((data[i+1]/100.0f)*y_offset);
+        	int point1 = (int) ((data[i]/110.0f)*y_offset);
+        	int point2 = (int) ((data[i+1]/110.0f)*y_offset);
         	g.drawLine(x_offset+xStepSize*i, y_offset-point1,
         			x_offset+xStepSize*(i+1), y_offset-point2);
         }

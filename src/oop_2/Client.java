@@ -42,7 +42,7 @@ public class Client extends JFrame implements ActionListener, Runnable {
     	JFrame frame = new JFrame("RPi Client");
     	this.dataPlotter = new Plotter();
     	this.movingAveragePlotter = new MovingAveragePlotter();
-    	this.serverIPInput = new JTextField("localhost", 10);
+    	this.serverIPInput = new JTextField("192.168.8.194", 10);
     	this.sampleRateInput = new JTextField("200", 10);
     	this.start = new JButton("Start");
     	this.stop = new JButton("Stop");
