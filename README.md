@@ -2,7 +2,7 @@
 Raspberry Pi sends temperature readings inside data object over network to custom made GUI client
 
 ## Structure
-![structure]()
+![structure](https://github.com/eoinoreilly30/rpi-temp-sensor-with-gui/blob/master/images/structure.png)
 
 ## Client
-![client]()
+![client](https://github.com/eoinoreilly30/rpi-temp-sensor-with-gui/blob/master/images/client.png)
